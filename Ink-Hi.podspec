@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Ink-Hi'
-  s.version          = '0.6.0-v2'
+  s.version          = '0.6.0-v3'
   s.summary          = 'A Markdown parser'
   s.description      = <<-DESC
 						A fast and flexible Markdown parser written in Swift.
