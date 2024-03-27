@@ -3,3 +3,6 @@
 /.build
 /.swiftpm
 /*.xcodeproj
+Example/*.xcworkspace
+Example/Podfile.lock
+Example/Pods/
