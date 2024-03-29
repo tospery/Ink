@@ -14,819 +14,423 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         var parser = MarkdownParser.init()
+        parser.addModifier(.init(target: .metadataKeys, closure: { html, _ in
+            print("【MARKDOWN转HTML】metadataKeys:\n\(html)")
+            return html
+        }))
+        parser.addModifier(.init(target: .metadataValues, closure: { html, _ in
+            print("【MARKDOWN转HTML】metadataValues:\n\(html)")
+            return html
+        }))
+        parser.addModifier(.init(target: .blockquotes, closure: { html, _ in
+            print("【MARKDOWN转HTML】blockquotes:\n\(html)")
+            return html
+        }))
         parser.addModifier(.init(target: .codeBlocks, closure: { html, _ in
             print("【MARKDOWN转HTML】codeBlocks:\n\(html)")
+            return html
+        }))
+        parser.addModifier(.init(target: .headings, closure: { html, _ in
+            print("【MARKDOWN转HTML】headings:\n\(html)")
+            return html
+        }))
+        parser.addModifier(.init(target: .horizontalLines, closure: { html, _ in
+            print("【MARKDOWN转HTML】horizontalLines:\n\(html)")
+            return html
+        }))
+        parser.addModifier(.init(target: .html, closure: { html, _ in
+            print("【MARKDOWN转HTML】html:\n\(html)")
+            let pattern = #"!?\[.*\]\(.+\).*"#
+            if let regex = try? NSRegularExpression.init(pattern: pattern, options: .caseInsensitive) {
+                var results = [String].init()
+                let matches = regex.matches(in: html, options: [], range: NSRange(location: 0, length: html.utf16.count))
+                if matches.count != 0 {
+                    for match in matches {
+                        if let range = Range(match.range, in: html) {
+                            let extractedString = String(html[range])
+                            if extractedString.count != 0 {
+                                results.append(extractedString)
+                            }
+                        }
+                    }
+                    print("看看匹配结果:\n\(results)")
+                }
+            }
+            return html
+        }))
+        parser.addModifier(.init(target: .images, closure: { html, _ in
+            print("【MARKDOWN转HTML】images:\n\(html)")
+            return html
+        }))
+        parser.addModifier(.init(target: .inlineCode, closure: { html, _ in
+            print("【MARKDOWN转HTML】inlineCode:\n\(html)")
+            return html
+        }))
+        parser.addModifier(.init(target: .links, closure: { html, _ in
+            print("【MARKDOWN转HTML】links:\n\(html)")
+            return html
+        }))
+        parser.addModifier(.init(target: .lists, closure: { html, _ in
+            print("【MARKDOWN转HTML】lists:\n\(html)")
+            return html
+        }))
+        parser.addModifier(.init(target: .paragraphs, closure: { html, _ in
+            print("【MARKDOWN转HTML】paragraphs:\n\(html)")
             return html
         }))
         parser.addModifier(.init(target: .tables, closure: { html, _ in
             print("【MARKDOWN转HTML】tables:\n\(html)")
             return html
         }))
-        _ = parser.html(from: self.markdown)
+        let html = parser.html(from: self.markdown)
+        print("转换的html:\n\(html)")
     }
     
     
     lazy var markdown: String = {
         let string = """
-# WeixinBot [![star this repo](http://github-svg-buttons.herokuapp.com/star.svg?user=Urinx&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/Urinx/WeixinBot) [![fork this repo](http://github-svg-buttons.herokuapp.com/fork.svg?user=Urinx&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/Urinx/WeixinBot/fork) ![python](https://img.shields.io/badge/python-2.7%20&%203.6-ff69b4.svg)
+<div align="center">
+<h1 align="center">MoneyPrinterTurbo 💸</h1>
 
-网页版微信API，包含终端版微信及微信机器人
+<p align="center">
+  <a href="https://github.com/harry0703/MoneyPrinterTurbo/stargazers"><img src="https://img.shields.io/github/stars/harry0703/MoneyPrinterTurbo.svg?style=for-the-badge" alt="Stargazers"></a>
+  <a href="https://github.com/harry0703/MoneyPrinterTurbo/issues"><img src="https://img.shields.io/github/issues/harry0703/MoneyPrinterTurbo.svg?style=for-the-badge" alt="Issues"></a>
+  <a href="https://github.com/harry0703/MoneyPrinterTurbo/network/members"><img src="https://img.shields.io/github/forks/harry0703/MoneyPrinterTurbo.svg?style=for-the-badge" alt="Forks"></a>
+  <a href="https://github.com/harry0703/MoneyPrinterTurbo/blob/main/LICENSE"><img src="https://img.shields.io/github/license/harry0703/MoneyPrinterTurbo.svg?style=for-the-badge" alt="License"></a>
+</p>
 
-## Contents
-* [Demo](#Demo)
-* [Web Weixin Pipeline](#Web-Weixin-Pipeline)
-* [Web Weixin API](#Web-Weixin-API)
-* [Discussion Group](#Discussion-Group)
-* [Recent Update](#Recent-Update)
+[English](README-en.md) | 简体中文
 
-## <a name="Demo">Demo</a>
-为了确保能正常运行示例脚本，请安装所需的第三方包。
+只需提供一个视频 **主题** 或 **关键词** ，就可以全自动生成视频文案、视频素材、视频字幕、视频背景音乐，然后合成一个高清的短视频。
 
-```
+![](docs/webui.jpg)
+
+</div>
+
+## 特别感谢 🙏
+
+由于该项目的 **部署** 和 **使用**，对于一些小白用户来说，还是 **有一定的门槛**，在此特别感谢
+
+**录咖（AI智能 多媒体服务平台）** 网站基于该项目，提供的免费`AI视频生成器`服务，可以不用部署，直接在线使用，非常方便。
+
+- 中文版：https://reccloud.cn
+- 英文版：https://reccloud.com
+
+![](docs/reccloud.cn.jpg)
+
+## 功能特性 🎯
+
+- [x] 完整的 **MVC架构**，代码 **结构清晰**，易于维护，支持API和Web界面
+- [x] 支持视频文案 **AI自动生成**，也可以**自定义文案**
+- [x] 支持多种 **高清视频** 尺寸
+    - [x] 竖屏 9:16，`1080x1920`
+    - [x] 横屏 16:9，`1920x1080`
+- [x] 支持 **批量视频生成**，可以一次生成多个视频，然后选择一个最满意的
+- [x] 支持 **视频片段时长**设置，方便调节素材切换频率
+- [x] 支持 **中文** 和 **英文** 视频文案
+- [x] 支持 **多种语音** 合成
+- [x] 支持 **字幕生成**，可以调整 `字体`、`位置`、`颜色`、`大小`，同时支持`字幕描边`设置
+- [x] 支持 **背景音乐**，随机或者指定音乐文件，可设置`背景音乐音量`
+- [x] 视频素材来源 **高清**，而且 **无版权**
+- [x] 支持 **OpenAI**、**moonshot**、**Azure**、**gpt4free**、**one-api**、**通义千问** 等多种模型接入
+
+### 后期计划 📅
+
+- [ ] GPT-SoVITS 配音支持
+- [ ] 优化语音合成，利用大模型，使其合成的声音，更加自然，情绪更加丰富
+- [ ] 增加视频转场效果，使其看起来更加的流畅
+- [ ] 优化视频素材的匹配度
+- [ ] OLLAMA 支持
+
+## 视频演示 📺
+
+### 竖屏 9:16
+
+<table>
+<thead>
+<tr>
+<th align="center"><g-emoji class="g-emoji" alias="arrow_forward">▶️</g-emoji> 《如何增加生活的乐趣》</th>
+<th align="center"><g-emoji class="g-emoji" alias="arrow_forward">▶️</g-emoji> 《生命的意义是什么》</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><video src="https://github.com/harry0703/MoneyPrinterTurbo/assets/4928832/a84d33d5-27a2-4aba-8fd0-9fb2bd91c6a6"></video></td>
+<td align="center"><video src="https://github.com/harry0703/MoneyPrinterTurbo/assets/4928832/112c9564-d52b-4472-99ad-970b75f66476"></video></td>
+</tr>
+</tbody>
+</table>
+
+### 横屏 16:9
+
+<table>
+<thead>
+<tr>
+<th align="center"><g-emoji class="g-emoji" alias="arrow_forward">▶️</g-emoji>《生命的意义是什么》</th>
+<th align="center"><g-emoji class="g-emoji" alias="arrow_forward">▶️</g-emoji>《为什么要运动》</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><video src="https://github.com/harry0703/MoneyPrinterTurbo/assets/4928832/346ebb15-c55f-47a9-a653-114f08bb8073"></video></td>
+<td align="center"><video src="https://github.com/harry0703/MoneyPrinterTurbo/assets/4928832/271f2fae-8283-44a0-8aa0-0ed8f9a6fa87"></video></td>
+</tr>
+</tbody>
+</table>
+
+## 安装部署 📥
+
+建议使用 [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) 创建 python 虚拟环境
+
+```shell
+git clone https://github.com/harry0703/MoneyPrinterTurbo.git
+cd MoneyPrinterTurbo
+conda create -n MoneyPrinterTurbo python=3.10
+conda activate MoneyPrinterTurbo
 pip install -r requirements.txt
 ```
 
-注：下面演示的图片与功能可能不是最新的，具体请看源码。
+## 快速使用 🚀
 
-<div align=center>
-<img src="imgs/1.png" width="500" height="550"/>
-</div>
+### 视频教程
 
-按照操作指示在手机微信上扫描二维码然后登录，你可以选择是否开启自动回复模式。
+- 完整的使用演示：https://v.douyin.com/iFhnwsKY/
+- 如何在Windows上部署：https://v.douyin.com/iFyjoW3M
 
-![2](imgs/2.png)
+### 前提
 
-开启自动回复模式后，如果接收到的是文字消息就会自动回复，包括群消息。
+- 尽量不要使用 **中文路径**，避免出现一些无法预料的问题
+- 请确保你的 **网络** 是正常的，即可以正常访问境外网站
 
-![3](imgs/3.png)
+#### ① 安装好 ImageMagick
 
-名片，链接，动画表情和地址位置消息。
+##### Windows:
 
-![4](imgs/4.png)
+- 下载 https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-29-Q16-x64-static.exe
+- 安装下载好的 ImageMagick，注意不要修改安装路径
 
-![5](imgs/5.png)
+##### MacOS:
 
-网页版上有的功能目前基本上都能支持。
+```shell
+brew install imagemagick
+````
 
-## <a name="Web-Weixin-Pipeline">Web Weixin Pipeline</a>
+##### Ubuntu
 
-```
-       +--------------+     +---------------+   +---------------+
-       |              |     |               |   |               |
-       |   Get UUID   |     |  Get Contact  |   | Status Notify |
-       |              |     |               |   |               |
-       +-------+------+     +-------^-------+   +-------^-------+
-               |                    |                   |
-               |                    +-------+  +--------+
-               |                            |  |
-       +-------v------+               +-----+--+------+      +--------------+
-       |              |               |               |      |              |
-       |  Get QRCode  |               |  Weixin Init  +------>  Sync Check  <----+
-       |              |               |               |      |              |    |
-       +-------+------+               +-------^-------+      +-------+------+    |
-               |                              |                      |           |
-               |                              |                      +-----------+
-               |                              |                      |
-       +-------v------+               +-------+--------+     +-------v-------+
-       |              | Confirm Login |                |     |               |
-+------>    Login     +---------------> New Login Page |     |  Weixin Sync  |
-|      |              |               |                |     |               |
-|      +------+-------+               +----------------+     +---------------+
-|             |
-|QRCode Scaned|
-+-------------+
+```shell
+sudo apt-get install imagemagick
 ```
 
+##### CentOS
 
-## <a name="Web-Weixin-API">Web Weixin API</a>
-
-### 登录
-
-| API | 获取 UUID |
-| --- | --------- |
-| url | https://login.weixin.qq.com/jslogin |
-| method | POST |
-| data | URL Encode |
-| params | **appid**: `应用ID` <br> **fun**: new `应用类型` <br> **lang**: zh_CN `语言` <br> **_**: `时间戳` |
-
-返回数据(String):
-```
-window.QRLogin.code = 200; window.QRLogin.uuid = "xxx"
-```
-> 注：这里的appid就是在微信开放平台注册的应用的AppID。网页版微信有两个AppID，早期的是`wx782c26e4c19acffb`，在微信客户端上显示为应用名称为`Web微信`；现在用的是`wxeb7ec651dd0aefa9`，显示名称为`微信网页版`。
-
-<div align=center>
-<img src="imgs/8.jpg" width="320" height="211"/>
-</div>
-
-<br>
-
-| API | 绑定登陆（webwxpushloginurl） |
-| --- | --------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxpushloginurl |
-| method | GET |
-| params | **uin**: xxx |
-
-返回数据(String):
-```
-{'msg': 'all ok', 'uuid': 'xxx', 'ret': '0'}
-
-通过这种方式可以省掉扫二维码这步操作，更加方便
-```
-<br>
-
-| API | 生成二维码 |
-| --- | --------- |
-| url | https://login.weixin.qq.com/l/ `uuid` |
-| method | GET |
-<br>
-
-| API | 二维码扫描登录 |
-| --- | --------- |
-| url | https://login.weixin.qq.com/cgi-bin/mmwebwx-bin/login |
-| method | GET |
-| params | **tip**: 1 `未扫描` 0 `已扫描` <br> **uuid**: xxx <br> **_**: `时间戳` |
-
-返回数据(String):
-```
-window.code=xxx;
-
-xxx:
-    408 登陆超时
-    201 扫描成功
-    200 确认登录
-
-当返回200时，还会有
-window.redirect_uri="https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage?ticket=xxx&uuid=xxx&lang=xxx&scan=xxx";
-```
-<br>
-
-| API | webwxnewloginpage |
-| --- | --------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage |
-| method | GET |
-| params | **ticket**: xxx <br> **uuid**: xxx <br> **lang**: zh_CN `语言` <br> **scan**: xxx <br> **fun**: new |
-
-返回数据(XML):
-```
-<error>
-    <ret>0</ret>
-    <message>OK</message>
-    <skey>xxx</skey>
-    <wxsid>xxx</wxsid>
-    <wxuin>xxx</wxuin>
-    <pass_ticket>xxx</pass_ticket>
-    <isgrayscale>1</isgrayscale>
-</error>
-```
-<br>
-
-### 微信初始化
-
-| API | webwxinit |
-| --- | --------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxinit?pass_ticket=xxx&skey=xxx&r=xxx |
-| method | POST |
-| data | JSON |
-| header | ContentType: application/json; charset=UTF-8 |
-| params | { <br> &nbsp;&nbsp;&nbsp;&nbsp; BaseRequest: { <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    Uin: xxx, <br>    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Sid: xxx, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    Skey: xxx, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DeviceID: xxx, <br> &nbsp;&nbsp;&nbsp;&nbsp; } <br> } |
-
-返回数据(JSON):
-```
-{
-    "BaseResponse": {
-        "Ret": 0,
-        "ErrMsg": ""
-    },
-    "Count": 11,
-    "ContactList": [...],
-    "SyncKey": {
-        "Count": 4,
-        "List": [
-            {
-                "Key": 1,
-                "Val": 635705559
-            },
-            ...
-        ]
-    },
-    "User": {
-        "Uin": xxx,
-        "UserName": xxx,
-        "NickName": xxx,
-        "HeadImgUrl": xxx,
-        "RemarkName": "",
-        "PYInitial": "",
-        "PYQuanPin": "",
-        "RemarkPYInitial": "",
-        "RemarkPYQuanPin": "",
-        "HideInputBarFlag": 0,
-        "StarFriend": 0,
-        "Sex": 1,
-        "Signature": "Apt-get install B",
-        "AppAccountFlag": 0,
-        "VerifyFlag": 0,
-        "ContactFlag": 0,
-        "WebWxPluginSwitch": 0,
-        "HeadImgFlag": 1,
-        "SnsFlag": 17
-    },
-    "ChatSet": xxx,
-    "SKey": xxx,
-    "ClientVersion": 369297683,
-    "SystemTime": 1453124908,
-    "GrayScale": 1,
-    "InviteStartCount": 40,
-    "MPSubscribeMsgCount": 2,
-    "MPSubscribeMsgList": [...],
-    "ClickReportInterval": 600000
-}
-```
-<br>
-
-| API | webwxstatusnotify |
-| --- | --------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxstatusnotify?lang=zh_CN&pass_ticket=xxx |
-| method | POST |
-| data | JSON |
-| header | ContentType: application/json; charset=UTF-8 |
-| params | { <br> &nbsp;&nbsp;&nbsp;&nbsp; BaseRequest: { Uin: xxx, Sid: xxx, Skey: xxx, DeviceID: xxx }, <br> &nbsp;&nbsp;&nbsp;&nbsp; Code: 3, <br> &nbsp;&nbsp;&nbsp;&nbsp; FromUserName: `自己ID`, <br> &nbsp;&nbsp;&nbsp;&nbsp; ToUserName: `自己ID`, <br> &nbsp;&nbsp;&nbsp;&nbsp; ClientMsgId: `时间戳` <br> } |
-
-返回数据(JSON):
-```
-{
-    "BaseResponse": {
-        "Ret": 0,
-        "ErrMsg": ""
-    },
-    ...
-}
-```
-<br>
-
-### 获取联系人信息
-
-| API | webwxgetcontact |
-| --- | --------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin//webwxgetcontact?pass_ticket=xxx&skey=xxx&r=xxx |
-| method | POST |
-| data | JSON |
-| header | ContentType: application/json; charset=UTF-8 |
-
-返回数据(JSON):
-```
-{
-    "BaseResponse": {
-        "Ret": 0,
-        "ErrMsg": ""
-    },
-    "MemberCount": 334,
-    "MemberList": [
-        {
-            "Uin": 0,
-            "UserName": xxx,
-            "NickName": "Urinx",
-            "HeadImgUrl": xxx,
-            "ContactFlag": 3,
-            "MemberCount": 0,
-            "MemberList": [],
-            "RemarkName": "",
-            "HideInputBarFlag": 0,
-            "Sex": 0,
-            "Signature": "你好，我们是地球三体组织。在这里，你将感受到不一样的思维模式，以及颠覆常规的世界观。而我们的目标，就是以三体人的智慧，引领人类未来科学技术500年。",
-            "VerifyFlag": 8,
-            "OwnerUin": 0,
-            "PYInitial": "URINX",
-            "PYQuanPin": "Urinx",
-            "RemarkPYInitial": "",
-            "RemarkPYQuanPin": "",
-            "StarFriend": 0,
-            "AppAccountFlag": 0,
-            "Statues": 0,
-            "AttrStatus": 0,
-            "Province": "",
-            "City": "",
-            "Alias": "Urinxs",
-            "SnsFlag": 0,
-            "UniFriend": 0,
-            "DisplayName": "",
-            "ChatRoomId": 0,
-            "KeyWord": "gh_",
-            "EncryChatRoomId": ""
-        },
-        ...
-    ],
-    "Seq": 0
-}
-```
-<br>
-
-| API | webwxbatchgetcontact |
-| --- | --------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxbatchgetcontact?type=ex&r=xxx&pass_ticket=xxx |
-| method | POST |
-| data | JSON |
-| header | ContentType: application/json; charset=UTF-8 |
-| params | { <br> &nbsp;&nbsp;&nbsp;&nbsp; BaseRequest: { Uin: xxx, Sid: xxx, Skey: xxx, DeviceID: xxx }, <br> &nbsp;&nbsp;&nbsp;&nbsp; Count: `群数量`, <br> &nbsp;&nbsp;&nbsp;&nbsp; List: [ <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { UserName: `群ID`, EncryChatRoomId: "" }, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ... <br> &nbsp;&nbsp;&nbsp;&nbsp; ], <br> } |
-
-返回数据(JSON)同上
-<br><br>
-
-### 同步刷新
-
-| API | synccheck |
-| --- | --------- |
-| protocol | https |
-| host | webpush.weixin.qq.com <br> webpush.wx2.qq.com <br> webpush.wx8.qq.com <br> webpush.wx.qq.com <br> webpush.web2.wechat.com <br> webpush.web.wechat.com |
-| path | /cgi-bin/mmwebwx-bin/synccheck |
-| method | GET |
-| data | URL Encode |
-| params | **r**: `时间戳` <br> **sid**: xxx <br> **uin**: xxx <br> **skey**: xxx <br> **deviceid**: xxx <br> **synckey**: xxx <br> **_**: `时间戳` |
-
-返回数据(String):
-```
-window.synccheck={retcode:"xxx",selector:"xxx"}
-
-retcode:
-    0 正常
-    1100 失败/登出微信
-selector:
-    0 正常
-    2 新的消息
-    7 进入/离开聊天界面
-```
-<br>
-
-| API | webwxsync |
-| --- | --------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=xxx&skey=xxx&pass_ticket=xxx |
-| method | POST |
-| data | JSON |
-| header | ContentType: application/json; charset=UTF-8 |
-| params | { <br> &nbsp;&nbsp;&nbsp;&nbsp; BaseRequest: { Uin: xxx, Sid: xxx, Skey: xxx, DeviceID: xxx }, <br> &nbsp;&nbsp;&nbsp;&nbsp; SyncKey: xxx, <br> &nbsp;&nbsp;&nbsp;&nbsp; rr: `时间戳取反` <br> } |
-
-返回数据(JSON):
-```
-{
-    'BaseResponse': {'ErrMsg': '', 'Ret': 0},
-    'SyncKey': {
-        'Count': 7,
-        'List': [
-            {'Val': 636214192, 'Key': 1},
-            ...
-        ]
-    },
-    'ContinueFlag': 0,
-    'AddMsgCount': 1,
-    'AddMsgList': [
-        {
-            'FromUserName': '',
-            'PlayLength': 0,
-            'RecommendInfo': {...},
-            'Content': "",
-            'StatusNotifyUserName': '',
-            'StatusNotifyCode': 5,
-            'Status': 3,
-            'VoiceLength': 0,
-            'ToUserName': '',
-            'ForwardFlag': 0,
-            'AppMsgType': 0,
-            'AppInfo': {'Type': 0, 'AppID': ''},
-            'Url': '',
-            'ImgStatus': 1,
-            'MsgType': 51,
-            'ImgHeight': 0,
-            'MediaId': '',
-            'FileName': '',
-            'FileSize': '',
-            ...
-        },
-        ...
-    ],
-    'ModChatRoomMemberCount': 0,
-    'ModContactList': [],
-    'DelContactList': [],
-    'ModChatRoomMemberList': [],
-    'DelContactCount': 0,
-    ...
-}
-```
-<br>
-
-### 消息接口
-
-| API | webwxsendmsg |
-| --- | ------------ |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg?pass_ticket=xxx |
-| method | POST |
-| data | JSON |
-| header | ContentType: application/json; charset=UTF-8 |
-| params | { <br> &nbsp;&nbsp;&nbsp;&nbsp; BaseRequest: { Uin: xxx, Sid: xxx, Skey: xxx, DeviceID: xxx }, <br> &nbsp;&nbsp;&nbsp;&nbsp; Msg: { <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type: 1 `文字消息`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Content: `要发送的消息`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FromUserName: `自己ID`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ToUserName: `好友ID`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LocalID: `与clientMsgId相同`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ClientMsgId: `时间戳左移4位随后补上4位随机数` <br> &nbsp;&nbsp;&nbsp;&nbsp; } <br> } |
-
-返回数据(JSON):
-```
-{
-    "BaseResponse": {
-        "Ret": 0,
-        "ErrMsg": ""
-    },
-    ...
-}
+```shell
+sudo yum install ImageMagick
 ```
 
-| API | webwxrevokemsg |
-| --- | ------------ |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxrevokemsg |
-| method | POST |
-| data | JSON |
-| header | ContentType: application/json; charset=UTF-8 |
-| params | { <br> &nbsp;&nbsp;&nbsp;&nbsp; BaseRequest: { Uin: xxx, Sid: xxx, Skey: xxx, DeviceID: xxx }, <br> &nbsp;&nbsp;&nbsp;&nbsp; SvrMsgId: msg_id, <br> &nbsp;&nbsp;&nbsp;&nbsp; ToUserName: user_id, <br> &nbsp;&nbsp;&nbsp;&nbsp; ClientMsgId: local_msg_id <br>  } |
+#### ② 修改配置文件
 
-返回数据(JSON):
-```
-{
-    "BaseResponse": {
-        "Ret": 0,
-        "ErrMsg": ""
-    }
-}
-```
+- 将 `config.example.toml` 文件复制一份，命名为 `config.toml`
+- 按照 `config.toml` 文件中的说明，配置好 `pexels_api_keys` 和 `llm_provider`，并根据 llm_provider 对应的服务商，配置相关的
+  API Key
+- 如果是`Windows`系统，`imagemagick_path` 为你的实际安装路径（如果安装的时候没有修改路径，直接取消注释即可）
 
-#### 发送表情
+#### ③ 配置大模型(LLM)
 
-| API | webwxsendmsgemotion |
-| --- | ------------ |
-| url | https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxsendemoticon?fun=sys&f=json&pass_ticket=xxx |
-| method | POST |
-| data | JSON |
-| header | ContentType: application/json; charset=UTF-8 |
-| params | { <br> &nbsp;&nbsp;&nbsp;&nbsp; BaseRequest: { Uin: xxx, Sid: xxx, Skey: xxx, DeviceID: xxx }, <br> &nbsp;&nbsp;&nbsp;&nbsp; Msg: { <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type: 47 `emoji消息`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EmojiFlag: 2, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MediaId: `表情上传后的媒体ID`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FromUserName: `自己ID`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ToUserName: `好友ID`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LocalID: `与clientMsgId相同`, <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ClientMsgId: `时间戳左移4位随后补上4位随机数` <br> &nbsp;&nbsp;&nbsp;&nbsp; } <br> } |
+- 如果要使用 `GPT-4.0` 或 `GPT-3.5`，需要有 `OpenAI` 的 `API Key`，如果没有，可以将 `llm_provider` 设置为 `g4f` (
+  一个免费使用GPT的开源库 https://github.com/xtekky/gpt4free)
+- 或者可以使用到 [月之暗面](https://platform.moonshot.cn/console/api-keys) 申请。注册就送
+  15元体验金，可以对话1500次左右。然后设置 `llm_provider="moonshot"` 和 `moonshot_api_key`
+  。感谢 [@jerryblues](https://github.com/harry0703/MoneyPrinterTurbo/issues/8) 的建议
 
-<br>
+### 启动Web界面 🌐
 
-### 图片接口
+注意需要到 MoneyPrinterTurbo 项目 `根目录` 下执行以下命令
 
-| API | webwxgeticon |
-| --- | ------------ |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon |
-| method | GET |
-| params | **seq**: `数字，可为空` <br> **username**: `ID` <br> **skey**: xxx |
-<br>
+#### Windows
 
-| API | webwxgetheadimg |
-| --- | --------------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetheadimg |
-| method | GET |
-| params | **seq**: `数字，可为空` <br> **username**: `群ID` <br> **skey**: xxx |
-<br>
-
-| API | webwxgetmsgimg |
-| --- | --------------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetmsgimg |
-| method | GET |
-| params | **MsgID**: `消息ID` <br> **type**: slave `略缩图` or `为空时加载原图` <br> **skey**: xxx |
-<br>
-
-### 多媒体接口
-
-| API | webwxgetvideo |
-| --- | --------------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetvideo |
-| method | GET |
-| params | **msgid**: `消息ID` <br> **skey**: xxx |
-<br>
-
-| API | webwxgetvoice |
-| --- | --------------- |
-| url | https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetvoice |
-| method | GET |
-| params | **msgid**: `消息ID` <br> **skey**: xxx |
-<br>
-
-### 账号类型
-
-| 类型 | 说明 |
-| :--: | --- |
-| 个人账号 | 以`@`开头，例如：`@xxx` |
-| 群聊 | 以`@@`开头，例如：`@@xxx` |
-| 公众号/服务号 | 以`@`开头，但其`VerifyFlag` & 8 != 0 <br><br> `VerifyFlag`: <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 一般个人公众号/服务号：8 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 一般企业的服务号：24 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 微信官方账号`微信团队`：56 |
-| 特殊账号 | 像文件传输助手之类的账号，有特殊的ID，目前已知的有：<br> `filehelper`, `newsapp`, `fmessage`, `weibo`, `qqmail`, `tmessage`, `qmessage`, `qqsync`, `floatbottle`, `lbsapp`, `shakeapp`, `medianote`, `qqfriend`, `readerapp`, `blogapp`, `facebookapp`, `masssendapp`, `meishiapp`, `feedsapp`, `voip`, `blogappweixin`, `weixin`, `brandsessionholder`, `weixinreminder`, `officialaccounts`, `notification_messages`, `wxitil`, `userexperience_alarm`, `notification_messages` |
-<br>
-
-### 消息类型
-
-消息一般格式：
-```
-{
-    "FromUserName": "",
-    "ToUserName": "",
-    "Content": "",
-    "StatusNotifyUserName": "",
-    "ImgWidth": 0,
-    "PlayLength": 0,
-    "RecommendInfo": {...},
-    "StatusNotifyCode": 4,
-    "NewMsgId": "",
-    "Status": 3,
-    "VoiceLength": 0,
-    "ForwardFlag": 0,
-    "AppMsgType": 0,
-    "Ticket": "",
-    "AppInfo": {...},
-    "Url": "",
-    "ImgStatus": 1,
-    "MsgType": 1,
-    "ImgHeight": 0,
-    "MediaId": "",
-    "MsgId": "",
-    "FileName": "",
-    "HasProductId": 0,
-    "FileSize": "",
-    "CreateTime": 1454602196,
-    "SubMsgType": 0
-}
-```
-<br>
-
-| MsgType | 说明 |
-| ------- | --- |
-| 1  | 文本消息 |
-| 3  | 图片消息 |
-| 34 | 语音消息 |
-| 37 | 好友确认消息 |
-| 40 | POSSIBLEFRIEND_MSG |
-| 42 | 共享名片 |
-| 43 | 视频消息 |
-| 47 | 动画表情 |
-| 48 | 位置消息 |
-| 49 | 分享链接 |
-| 50 | VOIPMSG |
-| 51 | 微信初始化消息 |
-| 52 | VOIPNOTIFY |
-| 53 | VOIPINVITE |
-| 62 | 小视频 |
-| 9999 | SYSNOTICE |
-| 10000 | 系统消息 |
-| 10002 | 撤回消息 |
-<br>
-
-**微信初始化消息**
-```html
-MsgType: 51
-FromUserName: 自己ID
-ToUserName: 自己ID
-StatusNotifyUserName: 最近联系的联系人ID
-Content:
-    <msg>
-        <op id='4'>
-            <username>
-                // 最近联系的联系人
-                filehelper,xxx@chatroom,wxid_xxx,xxx,...
-            </username>
-            <unreadchatlist>
-                <chat>
-                    <username>
-                        // 朋友圈
-                        MomentsUnreadMsgStatus
-                    </username>
-                    <lastreadtime>
-                        1454502365
-                    </lastreadtime>
-                </chat>
-            </unreadchatlist>
-            <unreadfunctionlist>
-                // 未读的功能账号消息，群发助手，漂流瓶等
-            </unreadfunctionlist>
-        </op>
-    </msg>
+```bat
+conda activate MoneyPrinterTurbo
+webui.bat
 ```
 
-**文本消息**
-```
-MsgType: 1
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-Content: 消息内容
-```
+#### MacOS or Linux
 
-**图片消息**
-```html
-MsgType: 3
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-MsgId: 用于获取图片
-Content:
-    <msg>
-        <img length="6503" hdlength="0" />
-        <commenturl></commenturl>
-    </msg>
+```shell
+conda activate MoneyPrinterTurbo
+sh webui.sh
 ```
 
-**小视频消息**
-```html
-MsgType: 62
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-MsgId: 用于获取小视频
-Content:
-    <msg>
-        <img length="6503" hdlength="0" />
-        <commenturl></commenturl>
-    </msg>
+启动后，会自动打开浏览器
+
+效果如下图：
+![](docs/webui.jpg)
+
+### 启动API服务 🚀
+
+```shell
+python main.py
 ```
 
-**地理位置消息**
-```
-MsgType: 1
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-Content: http://weixin.qq.com/cgi-bin/redirectforward?args=xxx
-// 属于文本消息，只不过内容是一个跳转到地图的链接
-```
+启动后，可以查看 `API文档` http://127.0.0.1:8080/docs 直接在线调试接口，快速体验。
 
-**名片消息**
-```js
-MsgType: 42
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-Content:
-    <?xml version="1.0"?>
-    <msg bigheadimgurl="" smallheadimgurl="" username="" nickname=""  shortpy="" alias="" imagestatus="3" scene="17" province="" city="" sign="" sex="1" certflag="0" certinfo="" brandIconUrl="" brandHomeUrl="" brandSubscriptConfigUrl="" brandFlags="0" regionCode="" />
+效果如下图：
+![](docs/api.jpg)
 
-RecommendInfo:
-    {
-        "UserName": "xxx", // ID
-        "Province": "xxx",
-        "City": "xxx",
-        "Scene": 17,
-        "QQNum": 0,
-        "Content": "",
-        "Alias": "xxx", // 微信号
-        "OpCode": 0,
-        "Signature": "",
-        "Ticket": "",
-        "Sex": 0, // 1:男, 2:女
-        "NickName": "xxx", // 昵称
-        "AttrStatus": 4293221,
-        "VerifyFlag": 0
-    }
+## 语音合成 🗣
+
+所有支持的声音列表，可以查看：[声音列表](./docs/voice-list.txt)
+
+## 字幕生成 📜
+
+当前支持2种字幕生成方式：
+
+- edge: 生成速度更快，性能更好，对电脑配置没有要求，但是质量可能不稳定
+- whisper: 生成速度较慢，性能较差，对电脑配置有一定要求，但是质量更可靠
+
+可以修改 `config.toml` 配置文件中的 `subtitle_provider` 进行切换
+
+建议使用 `edge` 模式，如果生成的字幕质量不好，再切换到 `whisper` 模式
+
+> 如果留空，表示不生成字幕。
+
+## 背景音乐 🎵
+
+用于视频的背景音乐，位于项目的 `resource/songs` 目录下。
+> 当前项目里面放了一些默认的音乐，来自于 YouTube 视频，如有侵权，请删除。
+
+## 字幕字体 🅰
+
+用于视频字幕的渲染，位于项目的 `resource/fonts` 目录下，你也可以放进去自己的字体。
+
+## 常见问题 🤔
+
+### ❓AttributeError: 'str' object has no attribute 'choices'`
+
+这个问题是由于 OpenAI 或者其他 LLM，没有返回正确的回复导致的。
+
+大概率是网络原因， 使用 **VPN**，或者设置 `openai_base_url` 为你的代理 ，应该就可以解决了。
+
+### ❓RuntimeError: No ffmpeg exe could be found
+
+通常情况下，ffmpeg 会被自动下载，并且会被自动检测到。
+但是如果你的环境有问题，无法自动下载，可能会遇到如下错误：
+
 ```
-
-**语音消息**
-```html
-MsgType: 34
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-MsgId: 用于获取语音
-Content:
-    <msg>
-        <voicemsg endflag="1" cancelflag="0" forwardflag="0" voiceformat="4" voicelength="1580" length="2026" bufid="216825389722501519" clientmsgid="49efec63a9774a65a932a4e5fcd4e923filehelper174_1454602489" fromusername="" />
-    </msg>
-```
-
-**动画表情**
-```html
-MsgType: 47
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-Content:
-    <msg>
-        <emoji fromusername = "" tousername = "" type="2" idbuffer="media:0_0" md5="e68363487d8f0519c4e1047de403b2e7" len = "86235" productid="com.tencent.xin.emoticon.bilibili" androidmd5="e68363487d8f0519c4e1047de403b2e7" androidlen="86235" s60v3md5 = "e68363487d8f0519c4e1047de403b2e7" s60v3len="86235" s60v5md5 = "e68363487d8f0519c4e1047de403b2e7" s60v5len="86235" cdnurl = "http://emoji.qpic.cn/wx_emoji/eFygWtxcoMF8M0oCCsksMA0gplXAFQNpiaqsmOicbXl1OC4Tyx18SGsQ/" designerid = "" thumburl = "http://mmbiz.qpic.cn/mmemoticon/dx4Y70y9XctRJf6tKsy7FwWosxd4DAtItSfhKS0Czr56A70p8U5O8g/0" encrypturl = "http://emoji.qpic.cn/wx_emoji/UyYVK8GMlq5VnJ56a4GkKHAiaC266Y0me0KtW6JN2FAZcXiaFKccRevA/" aeskey= "a911cc2ec96ddb781b5ca85d24143642" ></emoji>
-        <gameext type="0" content="0" ></gameext>
-    </msg>
+RuntimeError: No ffmpeg exe could be found.
+Install ffmpeg on your system, or set the IMAGEIO_FFMPEG_EXE environment variable.
 ```
 
-**普通链接或应用分享消息**
-```html
-MsgType: 49
-AppMsgType: 5
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-Url: 链接地址
-FileName: 链接标题
-Content:
-    <msg>
-        <appmsg appid=""  sdkver="0">
-            <title></title>
-            <des></des>
-            <type>5</type>
-            <content></content>
-            <url></url>
-            <thumburl></thumburl>
-            ...
-        </appmsg>
-        <appinfo>
-            <version></version>
-            <appname></appname>
-        </appinfo>
-    </msg>
+此时你可以从 https://www.gyan.dev/ffmpeg/builds/ 下载ffmpeg，解压后，设置 `ffmpeg_path` 为你的实际安装路径即可。
+
+```toml
+[app]
+# 请根据你的实际路径设置，注意 Windows 路径分隔符为 \\
+ffmpeg_path = "C:\\Users\\harry\\Downloads\\ffmpeg.exe"
 ```
 
-**音乐链接消息**
-```html
-MsgType: 49
-AppMsgType: 3
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-Url: 链接地址
-FileName: 音乐名
+### ❓生成音频时报错或下载视频报错
 
-AppInfo: // 分享链接的应用
-    {
-        Type: 0,
-        AppID: wx485a97c844086dc9
-    }
+[issue 56](https://github.com/harry0703/MoneyPrinterTurbo/issues/56)
 
-Content:
-    <msg>
-        <appmsg appid="wx485a97c844086dc9"  sdkver="0">
-            <title></title>
-            <des></des>
-            <action></action>
-            <type>3</type>
-            <showtype>0</showtype>
-            <mediatagname></mediatagname>
-            <messageext></messageext>
-            <messageaction></messageaction>
-            <content></content>
-            <contentattr>0</contentattr>
-            <url></url>
-            <lowurl></lowurl>
-            <dataurl>
-                http://ws.stream.qqmusic.qq.com/C100003i9hMt1bgui0.m4a?vkey=6867EF99F3684&amp;guid=ffffffffc104ea2964a111cf3ff3edaf&amp;fromtag=46
-            </dataurl>
-            <lowdataurl>
-                http://ws.stream.qqmusic.qq.com/C100003i9hMt1bgui0.m4a?vkey=6867EF99F3684&amp;guid=ffffffffc104ea2964a111cf3ff3edaf&amp;fromtag=46
-            </lowdataurl>
-            <appattach>
-                <totallen>0</totallen>
-                <attachid></attachid>
-                <emoticonmd5></emoticonmd5>
-                <fileext></fileext>
-            </appattach>
-            <extinfo></extinfo>
-            <sourceusername></sourceusername>
-            <sourcedisplayname></sourcedisplayname>
-            <commenturl></commenturl>
-            <thumburl>
-                http://imgcache.qq.com/music/photo/album/63/180_albumpic_143163_0.jpg
-            </thumburl>
-            <md5></md5>
-        </appmsg>
-        <fromusername></fromusername>
-        <scene>0</scene>
-        <appinfo>
-            <version>29</version>
-            <appname>摇一摇搜歌</appname>
-        </appinfo>
-        <commenturl></commenturl>
-    </msg>
+```
+failed to generate audio, maybe the network is not available.
+if you are in China, please use a VPN.
 ```
 
-**群消息**
+[issue 44](https://github.com/harry0703/MoneyPrinterTurbo/issues/44)
+
 ```
-MsgType: 1
-FromUserName: @@xxx
-ToUserName: @xxx
-Content:
-    @xxx:<br/>xxx
+failed to download videos, maybe the network is not available.
+if you are in China, please use a VPN.
 ```
 
-**红包消息**
+这个大概率是网络原因，无法访问境外的服务，请使用VPN解决。
+
+### ❓ImageMagick is not installed on your computer
+
+[issue 33](https://github.com/harry0703/MoneyPrinterTurbo/issues/33)
+
+1. 按照 `示例配置` 里面提供的 `下载地址`
+   ，安装 https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-29-Q16-x64-static.exe, 用静态库
+2. 不要安装在中文路径里面，避免出现一些无法预料的问题
+
+[issue 54](https://github.com/harry0703/MoneyPrinterTurbo/issues/54#issuecomment-2017842022)
+
+如果是linux系统，可以手动安装，参考 https://cn.linux-console.net/?p=16978
+
+感谢 [@wangwenqiao666](https://github.com/wangwenqiao666)的研究探索
+
+### ❓ImageMagick的安全策略阻止了与临时文件@/tmp/tmpur5hyyto.txt相关的操作
+
+[issue 92](https://github.com/harry0703/MoneyPrinterTurbo/issues/92)
+
+可以在ImageMagick的配置文件policy.xml中找到这些策略。
+这个文件通常位于 /etc/ImageMagick-`X`/ 或 ImageMagick 安装目录的类似位置。
+修改包含`pattern="@"`的条目，将`rights="none"`更改为`rights="read|write"`以允许对文件的读写操作。
+
+感谢 [@chenhengzh](https://github.com/chenhengzh)的研究探索
+
+### ❓OSError: [Errno 24] Too many open files
+
+[issue 100](https://github.com/harry0703/MoneyPrinterTurbo/issues/100)
+
+这个问题是由于系统打开文件数限制导致的，可以通过修改系统的文件打开数限制来解决。
+
+查看当前限制
+
+```shell
+ulimit -n
 ```
-MsgType: 49
-AppMsgType: 2001
-FromUserName: 发送方ID
-ToUserName: 接收方ID
-Content: 未知
-```
-注：根据网页版的代码可以看到未来可能支持查看红包消息，但目前走的是系统消息，见下。
 
-**系统消息**
-```
-MsgType: 10000
-FromUserName: 发送方ID
-ToUserName: 自己ID
-Content:
-    "你已添加了 xxx ，现在可以开始聊天了。"
-    "如果陌生人主动添加你为朋友，请谨慎核实对方身份。"
-    "收到红包，请在手机上查看"
+如果过低，可以调高一些，比如
+
+```shell
+ulimit -n 10240
 ```
 
+### ❓AttributeError: module 'PIL.Image' has no attribute 'ANTIALIAS'
 
-## <a name="Discussion-Group">Discussion Group</a>
-如果你希望和 WeixinBot 的其他开发者交流，或者有什么问题和建议，欢迎大家加入微信群【Youth fed the dog】一起讨论。扫描下面的二维码添加机器人为好友，并回复【Aidog】获取入群链接。
+[issue 101](https://github.com/harry0703/MoneyPrinterTurbo/issues/101),
+[issue 83](https://github.com/harry0703/MoneyPrinterTurbo/issues/83),
+[issue 70](https://github.com/harry0703/MoneyPrinterTurbo/issues/70)
 
-<div align=center>
-<img src="imgs/groupQrcode.jpg" width="220" height="220" alt="join us"/>
-</div>
+先看下当前的 Pillow 版本是多少
 
-注：这个不是群的二维码，是机器人拉你入群，记得回复机器人【Aidog】哦~ （secret code: Aidog）
+```shell
+pip list |grep Pillow
+```
 
-## <a name="Recent-Update">Recent Update</a>
+如果是 10.x 的版本，可以尝试下降级看看，有用户反馈降级后正常
 
-- association_login
-    目前网页版微信已经可以脱离扫码，但是依然需要在客户端进行确认登录。
+```shell
+pip uninstall Pillow
+pip install Pillow==9.5.0
+# 或者降级到 8.4.0
+pip install Pillow==8.4.0
+```
+
+## 反馈建议 📢
+
+- 可以提交 [issue](https://github.com/harry0703/MoneyPrinterTurbo/issues)
+  或者 [pull request](https://github.com/harry0703/MoneyPrinterTurbo/pulls)。
+- 也可以关注我的 **抖音** 或 **视频号**：`网旭哈瑞.AI`
+    - 我会在上面发布一些 **使用教程** 和 **纯技术** 分享。
+    - 如果有更新和优化，我也会在上面 **及时通知**。
+    - 有问题也可以在上面 **留言**，我会 **尽快回复**。
+
+|                   抖音                    |              |                     视频号                     |
+|:---------------------------------------:|:------------:|:-------------------------------------------:|
+| <img src="docs/douyin.jpg" width="180"> |              | <img src="docs/shipinghao.jpg" width="200"> |
+
+## 参考项目 📚
+
+该项目基于 https://github.com/FujiwaraChoki/MoneyPrinter 重构而来，做了大量的优化，增加了更多的功能。
+感谢原作者的开源精神。
+
+## 许可证 📝
+
+点击查看 [`LICENSE`](LICENSE) 文件
+
 """
         return string
     }()
